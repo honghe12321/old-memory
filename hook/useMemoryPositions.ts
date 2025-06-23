@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 type Memory = {
-    id: number
+    id: string
     width: number
     height: number
 }

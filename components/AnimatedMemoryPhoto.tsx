@@ -1,18 +1,8 @@
 "use client"
-
 import { motion } from "framer-motion"
 import { MemoryPhoto } from "@/components/memory-photo"
+import {Memory} from "@/lib/notionhq";
 
-type Memory = {
-    id: number
-    src: string
-    title: string
-    date: string
-    location: string
-    description: string
-    width: number
-    height: number
-}
 
 type Position = {
     x: number

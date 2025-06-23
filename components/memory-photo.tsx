@@ -5,20 +5,12 @@ import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
 import { Calendar, MapPin, Heart } from "lucide-react"
+import {Memory} from "@/lib/notionhq";
 
 interface MemoryPhotoProps {
-  memory: {
-    id: number
-    src: string
-    title: string
-    date: string
-    location: string
-    description: string
-    width: number
-    height: number
-  }
-    style?: React.CSSProperties
-    maxWidth: number
+  memory: Memory
+  style?: React.CSSProperties
+  maxWidth: number
 }
 
 export function MemoryPhoto({ memory, style }: MemoryPhotoProps) {
@@ -66,6 +58,8 @@ export function MemoryPhoto({ memory, style }: MemoryPhotoProps) {
                   width={memory.width}
                   height={memory.height}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  unoptimized
+                  referrerPolicy='no-referrer'
               />
 
               {/* 悬停信息覆盖层 */}
