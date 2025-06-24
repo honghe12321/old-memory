@@ -11,21 +11,22 @@ interface MemoryPhotoProps {
   memory: Memory
   style?: React.CSSProperties
   maxWidth: number
+    handleShowImage:(src:string)=>void
+
 }
 
-export function MemoryPhoto({ memory, style }: MemoryPhotoProps) {
+export function MemoryPhoto({ memory, style,maxWidth,handleShowImage}: MemoryPhotoProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
 
   // 计算显示尺寸（限制最大宽度为300px，保持宽高比）
-  const maxWidth = 300
   const scale = Math.min(1, maxWidth / memory.width)
   const displayWidth = memory.width * scale
   const displayHeight = memory.height * scale
 
   return (
       <div
-          className={`cursor-pointer transition-all duration-500 hover:scale-105 hover:z-50`}
+          className={`cursor-pointer transition-all duration-500 hover:scale-105 hover:z-40`}
           style={{
             width: displayWidth + 24, // 加上padding
             height: displayHeight + 56, // 加上padding和底部留白
@@ -68,33 +69,45 @@ export function MemoryPhoto({ memory, style }: MemoryPhotoProps) {
                       isHovered ? "opacity-100" : "opacity-0"
                   }`}
               >
-                <div className="text-white space-y-2">
-                  <h3 className="font-bold text-lg leading-tight">{memory.title}</h3>
+                  <div className="text-white space-y-2">
+                      <h3 className="font-bold text-lg leading-tight">{memory.title}</h3>
 
-                  <div className="flex items-center gap-2 text-sm opacity-90">
-                    <Calendar className="w-3 h-3" />
-                    <span>{memory.date}</span>
+                      <div className="flex items-center gap-2 text-sm opacity-90">
+                          <Calendar className="w-3 h-3"/>
+                          <span>{memory.date}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-sm opacity-90">
+                          <MapPin className="w-3 h-3"/>
+                          <span>{memory.location}</span>
+                      </div>
+
+                      <p className="text-sm opacity-80 leading-relaxed line-clamp-2">{memory.description}</p>
+
+                      {/* 点赞按钮 与全屏 */}
+                      <div className='flex items-center gap-2 text-sm opacity-90'>
+                          <button
+                              onClick={(e) => {
+                                  e.stopPropagation()
+                                  setIsLiked(!isLiked)
+                              }}
+                              className="flex items-center gap-1 text-sm hover:text-red-400 transition-colors mt-2"
+                          >
+                              <Heart className={`w-4 h-4 ${isLiked ? "fill-red-400 text-red-400" : ""}`}/>
+                              <span>{isLiked ? "已收藏" : "收藏"}</span>
+                          </button>
+                          <button
+                              onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleShowImage(memory.src)
+                              }}
+                              className="flex items-center gap-1 text-sm transition-colors mt-2"
+                          >
+                              <span>查看大图</span>
+                          </button>
+                      </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm opacity-90">
-                    <MapPin className="w-3 h-3" />
-                    <span>{memory.location}</span>
-                  </div>
-
-                  <p className="text-sm opacity-80 leading-relaxed line-clamp-2">{memory.description}</p>
-
-                  {/* 点赞按钮 */}
-                  <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setIsLiked(!isLiked)
-                      }}
-                      className="flex items-center gap-1 text-sm hover:text-red-400 transition-colors mt-2"
-                  >
-                    <Heart className={`w-4 h-4 ${isLiked ? "fill-red-400 text-red-400" : ""}`} />
-                    <span>{isLiked ? "已收藏" : "收藏"}</span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>

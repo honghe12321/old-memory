@@ -12,68 +12,101 @@ type Position = {
     rotation: number
 }
 
-export function useMemoryPositions(memories: Memory[]) {
+type Result = {
+    positions: Position[]
+    photoWidth: number
+}
+
+export function useMemoryPositions(memories: Memory[]): Result {
     const [positions, setPositions] = useState<Position[]>([])
+    const [photoWidth, setPhotoWidth] = useState<number>(300)
 
     useEffect(() => {
         const generatePositions = () => {
-            const padding = 50
             const screenWidth = window.innerWidth
+            const minPhotoWidth = 170
+            const maxPhotoWidth = 300
+            const minPadding = 10
+            const maxPadding = 50
+            const minGap = 10 // 列之间的最小间距
 
-            const maxWidth = 300
-            // 每列宽度至少是 maxWidth + 20（左右各10间距）
-            const minColumnWidth = maxWidth + 20
+            // 计算最大可能的列数
+            let columns = 1
+            let padding = maxPadding
+            let photoWidth = maxPhotoWidth
 
-            const columns = Math.max(1, Math.floor((screenWidth - padding * 2) / minColumnWidth))
-            const columnWidth = (screenWidth - padding * 2) / columns
+            // 尝试不同的列数，找到最适合的布局
+            for (let tryColumns = 4; tryColumns >= 1; tryColumns--) {
+                // 计算在该列数下需要的最小宽度
+                const minRequiredWidth = tryColumns * minPhotoWidth + (tryColumns - 1) * minGap + minPadding * 2
+
+                if (screenWidth >= minRequiredWidth) {
+                    // 可以容纳这个列数，计算实际的参数
+                    const availableWidth = screenWidth - minPadding * 2
+                    const totalGapWidth = (tryColumns - 1) * minGap
+                    const availablePhotoWidth = availableWidth - totalGapWidth
+                    const idealPhotoWidth = availablePhotoWidth / tryColumns
+
+                    // 如果理想宽度在合理范围内，使用这个配置
+                    if (idealPhotoWidth >= minPhotoWidth) {
+                        columns = tryColumns
+                        photoWidth = Math.min(maxPhotoWidth, idealPhotoWidth)
+
+                        // 根据屏幕大小动态调整padding
+                        const paddingRatio = Math.max(0, Math.min(1, (screenWidth - 320) / (1024 - 320)))
+                        padding = minPadding + (maxPadding - minPadding) * paddingRatio
+
+                        break
+                    }
+                }
+            }
+
+            // 重新计算实际可用宽度和列宽
+            const availableWidth = screenWidth - padding * 2
+            const columnWidth = availableWidth / columns
             const columnHeights = new Array(columns).fill(padding)
 
             const newPositions = memories.map((memory) => {
-                const scale = Math.min(1, maxWidth / memory.width)
+                const scale = Math.min(1, photoWidth / memory.width)
                 const scaledHeight = memory.height * scale
 
                 // 找最短列
                 let targetColumn = 0
                 let minHeight = columnHeights[0]
-                columnHeights.forEach((height, col) => {
-                    if (height < minHeight) {
-                        minHeight = height
-                        targetColumn = col
+                for (let i = 1; i < columns; i++) {
+                    if (columnHeights[i] < minHeight) {
+                        minHeight = columnHeights[i]
+                        targetColumn = i
                     }
-                })
+                }
 
-                const baseX = padding + targetColumn * columnWidth + (columnWidth - maxWidth) / 2
+                // 计算位置
+                const baseX = padding + targetColumn * columnWidth + (columnWidth - photoWidth) / 2
                 const baseY = minHeight
 
-                // 缩小随机偏移，垂直方向只随机10px以内，水平不随机，防止错位重叠
-                const randomOffsetX = 0
-                const randomOffsetY = Math.random() * 10
-
-                const x = baseX + randomOffsetX
-                const y = baseY + randomOffsetY
-
-                // 间距稍微大一点，避免垂直重叠
-                const spacing = 40 + Math.random() * 20
-                columnHeights[targetColumn] = y + scaledHeight + spacing
-
+                const x = baseX
+                const y = baseY + Math.random() * 10
                 const rotation = (Math.random() - 0.5) * 10
 
-                return {
-                    x,
-                    y,
-                    rotation,
-                }
+                // 动态调整间距
+                const minSpacing = 20
+                const maxSpacing = 60
+                const spacingRatio = Math.max(0, Math.min(1, (screenWidth - 320) / (1024 - 320)))
+                const spacing = minSpacing + (maxSpacing - minSpacing) * spacingRatio + Math.random() * 20
+
+                columnHeights[targetColumn] = y + scaledHeight + spacing
+
+                return { x, y, rotation }
             })
 
             setPositions(newPositions)
+            setPhotoWidth(photoWidth)
         }
-
 
         generatePositions()
         window.addEventListener("resize", generatePositions)
-
         return () => window.removeEventListener("resize", generatePositions)
     }, [memories])
 
-    return positions
+    return { positions, photoWidth }
 }

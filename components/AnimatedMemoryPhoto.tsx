@@ -14,9 +14,11 @@ type Props = {
     memory: Memory
     index: number
     position: Position
+    photoWidth: number
+    handleShowImage:(imgSrc:string)=>void
 }
 
-export function AnimatedMemoryPhoto({ memory, index, position }: Props) {
+export function AnimatedMemoryPhoto({ memory, index, position,photoWidth,handleShowImage }: Props) {
     return (
         <motion.div
             key={memory.id}
@@ -57,7 +59,7 @@ export function AnimatedMemoryPhoto({ memory, index, position }: Props) {
             whileHover={{
                 scale: 1.05,
                 rotate: 0,
-                zIndex: 100,
+                zIndex: 40,
                 y: -10,
                 transition: {
                     type: "spring",
@@ -68,7 +70,8 @@ export function AnimatedMemoryPhoto({ memory, index, position }: Props) {
         >
             <MemoryPhoto
                 memory={memory}
-                maxWidth={300}
+                maxWidth={photoWidth}
+                handleShowImage={handleShowImage}
                 style={{
                     width: "auto",
                     height: "auto",
