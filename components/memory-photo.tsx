@@ -64,7 +64,7 @@ export function MemoryPhoto({ memory, style }: MemoryPhotoProps) {
 
               {/* 悬停信息覆盖层 */}
               <div
-                  className={`absolute inset-0 bg-black/70 backdrop-blur-sm duration-300 flex flex-col justify-end p-4 ${
+                  className={`absolute inset-0 bg-black/10 backdrop-blur-sm duration-300 flex flex-col justify-end p-4 ${
                       isHovered ? "opacity-100" : "opacity-0"
                   }`}
               >
